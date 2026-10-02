@@ -18,12 +18,15 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Auto-create correct project structure and build files
+    - name: Setup Gradle Environment
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
+
+    - name: Create Minimal Android Project Files
       run: |
-        # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root dùng AGP 8.2.0
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -43,7 +46,6 @@ jobs:
         }
         EOF
 
-        # 3. Tạo thư mục app, tệp app/build.gradle và AndroidManifest.xml cơ bản
         mkdir -p app/src/main
         
         cat << 'EOF' > app/build.gradle
@@ -51,11 +53,9 @@ jobs:
             id 'com.android.application'
             id 'org.jetbrains.kotlin.android'
         }
-
         android {
             namespace 'com.example.auto800best'
             compileSdk 34
-
             defaultConfig {
                 applicationId "com.example.auto800best"
                 minSdk 24
@@ -63,57 +63,47 @@ jobs:
                 versionCode 1
                 versionName "1.0"
             }
-
             compileOptions {
                 sourceCompatibility JavaVersion.VERSION_17
                 targetCompatibility JavaVersion.VERSION_17
             }
-
             kotlinOptions {
                 jvmTarget = '17'
             }
         }
-
         dependencies {
             implementation 'androidx.core:core-ktx:1.12.0'
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-            implementation 'com.google.android.material:material:1.11.0'
         }
         EOF
 
-        # 4. Đảm bảo có tệp AndroidManifest.xml tối thiểu để tránh lỗi không tìm thấy manifest
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.auto800best">
-            <application
-                android:allowBackup="true"
-                android:icon="@mipmap/ic_launcher"
-                android:label="Auto800Best"
-                android:roundIcon="@mipmap/ic_launcher_round"
-                android:supportsRtl="true"
-                android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-                <activity
-                    android:name=".MainActivity"
-                    android:exported="true">
+            <application android:label="Auto800Best">
+                <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
-                        <action android:name="intent.action.MAIN" />
-                        <category android:name="category.LAUNCHER" />
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
                     </intent-filter>
                 </activity>
             </application>
         </manifest>
         EOF
 
-    - name: Setup Gradle Wrapper and Generate gradlew
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
+        mkdir -p app/src/main/java/com/example/auto800best
+        cat << 'EOF' > app/src/main/java/com/example/auto800best/MainActivity.kt
+        package com.example.auto800best
+        import android.os.Bundle
+        import androidx.appcompat.app.AppCompatActivity
+        class MainActivity : AppCompatActivity() {
+            override fun onCreate(savedInstanceState: Bundle?) {
+                super.onCreate(savedInstanceState)
+            }
+        }
+        EOF
 
-    - name: Build Debug APK with Gradle Wrapper
-      run: |
-        gradle wrapper --gradle-version 8.5
-        chmod +x gradlew
-        ./gradlew assembleDebug --stacktrace
+    - name: Build Debug APK with Info Logs
+      run: gradle assembleDebug --info --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
