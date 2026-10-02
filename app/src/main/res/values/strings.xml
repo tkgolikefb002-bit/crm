@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Auto 800Best</string>
+    <string name="accessibility_service_description">Tự động hóa đăng nhập và xử lý đơn hàng 800best</string>
+</resources>
