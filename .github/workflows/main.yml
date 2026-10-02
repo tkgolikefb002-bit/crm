@@ -18,15 +18,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle Environment
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.5'
-
-    - name: Create Minimal Android Project Files
+    - name: Generate Android Project Structure
       run: |
+        # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
+        # 2. Tạo build.gradle cấp root
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -34,7 +31,7 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:8.2.0'
+                classpath 'com.android.tools.build:gradle:8.1.4'
                 classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
             }
         }
@@ -46,7 +43,9 @@ jobs:
         }
         EOF
 
-        mkdir -p app/src/main
+        # 3. Tạo thư mục app và build.gradle của app
+        mkdir -p app/src/main/java/com/example/auto800best
+        mkdir -p app/src/main/res
         
         cat << 'EOF' > app/build.gradle
         plugins {
@@ -73,13 +72,15 @@ jobs:
         }
         dependencies {
             implementation 'androidx.core:core-ktx:1.12.0'
+            implementation 'androidx.appcompat:appcompat:1.6.1'
         }
         EOF
 
+        # 4. Tạo AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.auto800best">
-            <application android:label="Auto800Best">
+            <application android:label="Auto800Best" android:supportsRtl="true">
                 <activity android:name=".MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
@@ -90,7 +91,7 @@ jobs:
         </manifest>
         EOF
 
-        mkdir -p app/src/main/java/com/example/auto800best
+        # 5. Tạo MainActivity.kt tối thiểu
         cat << 'EOF' > app/src/main/java/com/example/auto800best/MainActivity.kt
         package com.example.auto800best
         import android.os.Bundle
@@ -102,8 +103,21 @@ jobs:
         }
         EOF
 
-    - name: Build Debug APK with Info Logs
-      run: gradle assembleDebug --info --stacktrace
+        # 6. Khởi tạo Gradle Wrapper chuẩn phiên bản 8.0 để tương thích tốt với AGP 8.1.4
+        mkdir -p gradle/wrapper
+        cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+        EOF
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew || gradle wrapper
+
+    - name: Build Debug APK with Gradle Wrapper
+      run: ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
