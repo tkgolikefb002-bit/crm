@@ -18,22 +18,20 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle Environment
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '7.5'
-        cache-read-only: true
-
     - name: Setup Android SDK Environment
       run: |
         echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
         mkdir -p /usr/local/lib/android/sdk/licenses
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
-    - name: Build Android APK Stable
+    - name: Build with Generated Wrapper
       run: |
-        # Chạy build với giới hạn RAM tối ưu (-Xmx1024m) và không dùng daemon để tránh sập tiến trình
-        gradle :app:assembleDebug -Dorg.gradle.jvmargs="-Xmx1024m -Dfile.encoding=UTF-8" --no-daemon --stacktrace
+        # Tự động sinh bộ Gradle Wrapper 7.5 chuẩn xác cho mã nguồn
+        gradle wrapper --gradle-version 7.5 --no-daemon
+        
+        # Cấp quyền thực thi và chạy build qua wrapper
+        chmod +x gradlew
+        ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
