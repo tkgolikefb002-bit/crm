@@ -43,8 +43,9 @@ jobs:
         }
         EOF
 
-        # 3. Tạo thư mục app và tệp app/build.gradle
-        mkdir -p app
+        # 3. Tạo thư mục app, tệp app/build.gradle và AndroidManifest.xml cơ bản
+        mkdir -p app/src/main
+        
         cat << 'EOF' > app/build.gradle
         plugins {
             id 'com.android.application'
@@ -80,13 +81,39 @@ jobs:
         }
         EOF
 
-    - name: Setup Gradle Wrapper (Gradle 8.5)
+        # 4. Đảm bảo có tệp AndroidManifest.xml tối thiểu để tránh lỗi không tìm thấy manifest
+        cat << 'EOF' > app/src/main/AndroidManifest.xml
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.example.auto800best">
+            <application
+                android:allowBackup="true"
+                android:icon="@mipmap/ic_launcher"
+                android:label="Auto800Best"
+                android:roundIcon="@mipmap/ic_launcher_round"
+                android:supportsRtl="true"
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="intent.action.MAIN" />
+                        <category android:name="category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        EOF
+
+    - name: Setup Gradle Wrapper and Generate gradlew
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.5'
 
-    - name: Build Debug APK with Stacktrace
-      run: gradle assembleDebug --stacktrace --info
+    - name: Build Debug APK with Gradle Wrapper
+      run: |
+        gradle wrapper --gradle-version 8.5
+        chmod +x gradlew
+        ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
