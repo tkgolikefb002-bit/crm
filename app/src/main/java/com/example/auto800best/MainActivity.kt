@@ -1,6 +1,8 @@
-package com.example.auto800best // Đổi thành package name của dự án bạn
+package com.example.auto800best
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -16,27 +18,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
 
     private val PREF_NAME = "Auto800BestPrefs"
+    private val LOGIN_URL = "https://ucp-sso-sea.800best.com/uc-pub/login?service=https://vn-crm-mobile.800best.com/web/ssoCallback&lang=en-US#/login/index"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Ánh xạ thành phần giao diện
         edtStationCode = findViewById(R.id.edtStationCode)
         edtUsername = findViewById(R.id.edtUsername)
         edtPassword = findViewById(R.id.edtPassword)
         btnSave = findViewById(R.id.btnSave)
         btnLogin = findViewById(R.id.btnLogin)
 
-        // Tự động nạp thông tin đã lưu trước đó
         loadSavedCredentials()
 
-        // Sự kiện nút Lưu tài khoản
         btnSave.setOnClickListener {
             saveCredentials()
         }
 
-        // Sự kiện nút Đăng nhập
         btnLogin.setOnClickListener {
             val station = edtStationCode.text.toString().trim()
             val user = edtUsername.text.toString().trim()
@@ -47,19 +46,25 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(this, "Đang khởi chạy tiến trình tự động...", Toast.LENGTH_SHORT).show()
+            // Lưu lại trước khi chạy
+            saveCredentials()
+
+            Toast.makeText(this, "Đang mở trang đăng nhập 800best...", Toast.LENGTH_SHORT).show()
+
+            // Mở link trực tiếp bằng trình duyệt trên điện thoại
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(LOGIN_URL))
+            startActivity(intent)
         }
     }
 
     private fun saveCredentials() {
         val sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString("station", edtStationCode.text.toString().trim())
-        editor.putString("username", edtUsername.text.toString().trim())
-        editor.putString("password", edtPassword.text.toString().trim())
-        editor.apply()
-
-        Toast.makeText(this, "Đã lưu tài khoản thành công!", Toast.LENGTH_SHORT).show()
+        with(sharedPreferences.edit()) {
+            putString("station", edtStationCode.text.toString().trim())
+            putString("username", edtUsername.text.toString().trim())
+            putString("password", edtPassword.text.toString().trim())
+            apply()
+        }
     }
 
     private fun loadSavedCredentials() {
