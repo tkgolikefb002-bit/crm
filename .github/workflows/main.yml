@@ -28,7 +28,7 @@ jobs:
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root dùng AGP 7.4.2
+        # 2. Tạo build.gradle cấp root
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -108,8 +108,8 @@ jobs:
         }
         EOF
 
-        # 6. Chạy build với cờ debug/stacktrace rõ ràng để bóc tách triệt để lỗi
-        gradle assembleDebug --info --stacktrace
+        # 6. Chạy build với cờ debug chi tiết nhất
+        gradle assembleDebug --info --stacktrace --warning-mode all
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
