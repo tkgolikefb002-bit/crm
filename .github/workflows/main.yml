@@ -18,21 +18,21 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK Path
+    - name: Install Gradle & Setup Android Environment
       run: |
-        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-        mkdir -p $HOME/android-sdk/licenses
-        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
+        # Cài đặt Gradle trực tiếp trên hệ thống Ubuntu bằng apt để tránh lỗi wrapper
+        sudo apt-get update
+        sudo apt-get install -y gradle
 
-    - name: Build APK with Gradle Wrapper
+        # Thiết lập biến môi trường Android SDK mặc định của runner
+        echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+        mkdir -p /usr/local/lib/android/sdk/licenses
+        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
+
+    - name: Build APK Directly
       run: |
-        # Kiểm tra và cấp quyền chạy cho gradlew nếu có sẵn, nếu chưa có sẽ dùng gradle trực tiếp kèm SDK path
-        if [ -f "./gradlew" ]; then
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
-        else
-          gradle assembleDebug -Dandroid.sdk.path=$HOME/android-sdk --no-daemon --stacktrace
-        fi
+        # Chạy trực tiếp lệnh gradle của hệ thống ở chế độ không dùng daemon
+        gradle assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
