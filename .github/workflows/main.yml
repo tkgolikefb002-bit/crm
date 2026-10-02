@@ -24,14 +24,12 @@ jobs:
         mkdir -p /usr/local/lib/android/sdk/licenses
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
-    - name: Build with Generated Wrapper
+    - name: Build with Detailed Info
       run: |
-        # Tự động sinh bộ Gradle Wrapper 7.5 chuẩn xác cho mã nguồn
+        # Sinh wrapper và chạy build kèm cờ --info để xuất trọn vẹn thông báo lỗi
         gradle wrapper --gradle-version 7.5 --no-daemon
-        
-        # Cấp quyền thực thi và chạy build qua wrapper
         chmod +x gradlew
-        ./gradlew :app:assembleDebug --no-daemon --stacktrace
+        ./gradlew :app:assembleDebug --no-daemon --stacktrace --info
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
