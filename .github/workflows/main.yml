@@ -18,17 +18,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle Environment
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '8.1.1'
-
-    - name: Auto-create compatible project structure and build files
+    - name: Auto-create correct project structure and build files
       run: |
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root tương thích phiên bản 8.1.1
+        # 2. Tạo build.gradle cấp root dùng AGP 8.2.0
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -36,7 +31,7 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:8.1.1'
+                classpath 'com.android.tools.build:gradle:8.2.0'
                 classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
             }
         }
@@ -84,6 +79,11 @@ jobs:
             implementation 'com.google.android.material:material:1.11.0'
         }
         EOF
+
+    - name: Setup Gradle Wrapper (Gradle 8.5)
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.5'
 
     - name: Build Debug APK with Gradle
       run: gradle assembleDebug
