@@ -18,12 +18,29 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Auto-create missing Gradle root files
+    - name: Auto-create correct Gradle root files with Google Repository
       run: |
-        # Tạo tệp settings.gradle ở thư mục gốc
-        echo 'include ":app"' > settings.gradle
+        # Tạo tệp settings.gradle với đầy đủ kho chứa plugin Google và Maven Central
+        cat << 'EOF' > settings.gradle
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "Auto800Best"
+        include ':app'
+        EOF
         
-        # Tạo tệp build.gradle cấp root
+        # Tạo tệp build.gradle cấp root tương thích bản 8.2.0
         cat << 'EOF' > build.gradle
         plugins {
             id 'com.android.application' version '8.2.0' apply false
