@@ -18,7 +18,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Generate Android Project Structure & Build APK
+    - name: Setup Gradle Environment
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '7.5'
+
+    - name: Generate Project Structure and Build APK
       run: |
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
@@ -103,9 +108,8 @@ jobs:
         }
         EOF
 
-        # 6. Build trực tiếp bằng lệnh gradle hệ thống phiên bản 7.5
-        gradle wrapper --gradle-version 7.5
-        ./gradlew assembleDebug --stacktrace
+        # 6. Build trực tiếp bằng gradle lệnh chuẩn được cung cấp sẵn từ action
+        gradle assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
