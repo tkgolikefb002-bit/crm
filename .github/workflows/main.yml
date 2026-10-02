@@ -7,6 +7,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Chỉ định rõ thư mục chứa mã nguồn Android của bạn là 'crm'
+    defaults:
+      run:
+        working-directory: ./crm
 
     steps:
     - name: Checkout repository
@@ -21,7 +25,6 @@ jobs:
     - name: Install Gradle & Generate Modern Wrapper
       run: |
         sudo apt-get update && sudo apt-get install -y gradle
-        # Ép tạo Gradle bản 8.5 để tương thích tốt với Java 17
         gradle wrapper --gradle-version 8.5
 
     - name: Grant execute permission for gradlew
@@ -34,4 +37,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: crm/app/build/outputs/apk/debug/app-debug.apk
