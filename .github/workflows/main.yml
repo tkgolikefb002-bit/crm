@@ -20,13 +20,15 @@ jobs:
 
     - name: Setup Gradle Environment
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.1.1'
 
-    - name: Auto-create project structure and build files
+    - name: Auto-create compatible project structure and build files
       run: |
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root
+        # 2. Tạo build.gradle cấp root tương thích phiên bản 8.1.1
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -34,8 +36,8 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:8.2.0'
-                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20'
+                classpath 'com.android.tools.build:gradle:8.1.1'
+                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
             }
         }
         allprojects {
