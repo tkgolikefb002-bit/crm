@@ -23,7 +23,7 @@ jobs:
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root
+        # 2. Tạo build.gradle cấp root dùng AGP 7.4.2
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -31,8 +31,8 @@ jobs:
                 mavenCentral()
             }
             dependencies {
-                classpath 'com.android.tools.build:gradle:8.1.4'
-                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+                classpath 'com.android.tools.build:gradle:7.4.2'
+                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20'
             }
         }
         allprojects {
@@ -43,7 +43,7 @@ jobs:
         }
         EOF
 
-        # 3. Tạo thư mục app và build.gradle của app
+        # 3. Tạo thư mục app và cấu hình build.gradle bên trong
         mkdir -p app/src/main/java/com/example/auto800best
         mkdir -p app/src/main/res
         
@@ -54,25 +54,25 @@ jobs:
         }
         android {
             namespace 'com.example.auto800best'
-            compileSdk 34
+            compileSdk 33
             defaultConfig {
                 applicationId "com.example.auto800best"
                 minSdk 24
-                targetSdk 34
+                targetSdk 33
                 versionCode 1
                 versionName "1.0"
             }
             compileOptions {
-                sourceCompatibility JavaVersion.VERSION_17
-                targetCompatibility JavaVersion.VERSION_17
+                sourceCompatibility JavaVersion.VERSION_11
+                targetCompatibility JavaVersion.VERSION_11
             }
             kotlinOptions {
-                jvmTarget = '17'
+                jvmTarget = '11'
             }
         }
         dependencies {
-            implementation 'androidx.core:core-ktx:1.12.0'
-            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'androidx.core:core-ktx:1.9.0'
+            implementation 'androidx.appcompat:appcompat:1.6.0'
         }
         EOF
 
@@ -103,18 +103,21 @@ jobs:
         }
         EOF
 
-        # 6. Khởi tạo Gradle Wrapper chuẩn phiên bản 8.0 để tương thích tốt với AGP 8.1.4
+        # 6. Tạo đúng cấu trúc Gradle Wrapper phiên bản 7.5 tương thích hoàn toàn
         mkdir -p gradle/wrapper
         cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
         distributionBase=GRADLE_USER_HOME
         distributionPath=wrapper/dists
-        distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+        distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
         zipStoreBase=GRADLE_USER_HOME
         zipStorePath=wrapper/dists
         EOF
 
+        # Tạo file gradlew thực thi
+        gradle wrapper --gradle-version 7.5
+
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew || gradle wrapper
+      run: chmod +x gradlew
 
     - name: Build Debug APK with Gradle Wrapper
       run: ./gradlew assembleDebug --stacktrace
