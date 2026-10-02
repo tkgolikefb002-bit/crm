@@ -18,12 +18,15 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Auto-create stable Gradle configuration
+    - name: Setup Gradle Environment
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Auto-create project structure and build files
       run: |
-        # 1. settings.gradle cực kỳ đơn giản
+        # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. build.gradle cấp root chuẩn buildscript
+        # 2. Tạo build.gradle cấp root
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -32,10 +35,9 @@ jobs:
             }
             dependencies {
                 classpath 'com.android.tools.build:gradle:8.2.0'
-                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20'
             }
         }
-
         allprojects {
             repositories {
                 google()
@@ -81,15 +83,8 @@ jobs:
         }
         EOF
 
-    - name: Install Gradle & Generate Wrapper
-      run: |
-        sudo apt-get update && sudo apt-get install -y gradle
-        gradle wrapper --gradle-version 8.5
-
-    - name: Grant execute permission and Build Debug APK
-      run: |
-        chmod +x gradlew
-        ./gradlew assembleDebug
+    - name: Build Debug APK with Gradle
+      run: gradle assembleDebug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
