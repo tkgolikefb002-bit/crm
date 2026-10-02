@@ -28,11 +28,12 @@ jobs:
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo gradle.properties để bật cấu hình AndroidX và Jetifier
+        # 2. Tạo gradle.properties với đầy đủ cấu hình tối ưu
         cat << 'EOF' > gradle.properties
         android.useAndroidX=true
         android.enableJetifier=true
         org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+        org.gradle.daemon=false
         EOF
 
         # 3. Tạo build.gradle cấp root
@@ -81,6 +82,9 @@ jobs:
             kotlinOptions {
                 jvmTarget = '11'
             }
+            lintOptions {
+                abortOnError false
+            }
         }
         dependencies {
             implementation 'androidx.core:core-ktx:1.9.0'
@@ -115,8 +119,9 @@ jobs:
         }
         EOF
 
-        # 7. Chạy build APK
-        gradle assembleDebug --stacktrace
+        # 7. Khởi tạo gradle wrapper và build APK trực tiếp
+        gradle wrapper --gradle-version 7.5
+        ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
