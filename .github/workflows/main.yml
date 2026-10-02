@@ -18,12 +18,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Auto-create standard Gradle root files
+    - name: Auto-create missing Gradle build files
       run: |
-        # Tạo settings.gradle đơn giản
+        # 1. Tạo tệp settings.gradle ở thư mục gốc
         echo 'include ":app"' > settings.gradle
         
-        # Tạo build.gradle cấp root chứa cấu hình kho chứa plugin chuẩn
+        # 2. Tạo tệp build.gradle cấp root
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -35,16 +35,48 @@ jobs:
                 classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
             }
         }
-
         allprojects {
             repositories {
                 google()
                 mavenCentral()
             }
         }
-        
-        task clean(type: Delete) {
-            delete rootProject.buildDir
+        EOF
+
+        # 3. Tạo thư mục app và tệp app/build.gradle còn thiếu
+        mkdir -p app
+        cat << 'EOF' > app/build.gradle
+        plugins {
+            id 'com.android.application'
+            id 'org.jetbrains.kotlin.android'
+        }
+
+        android {
+            namespace 'com.example.auto800best'
+            compileSdk 34
+
+            defaultConfig {
+                applicationId "com.example.auto800best"
+                minSdk 24
+                targetSdk 34
+                versionCode 1
+                versionName "1.0"
+            }
+
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+            }
+
+            kotlinOptions {
+                jvmTarget = '17'
+            }
+        }
+
+        dependencies {
+            implementation 'androidx.core:core-ktx:1.12.0'
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'com.google.android.material:material:1.11.0'
         }
         EOF
 
