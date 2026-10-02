@@ -1,4 +1,4 @@
-package com.example.auto800best
+package com.example.auto800best // Đổi đúng package name của dự án bạn
 
 import android.content.Context
 import android.content.Intent
@@ -24,18 +24,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 1. Ánh xạ các thành phần giao diện từ activity_main.xml
         edtStationCode = findViewById(R.id.edtStationCode)
         edtUsername = findViewById(R.id.edtUsername)
         edtPassword = findViewById(R.id.edtPassword)
         btnSave = findViewById(R.id.btnSave)
         btnLogin = findViewById(R.id.btnLogin)
 
+        // 2. Tự động nạp thông tin đã lưu trước đó (nếu có)
         loadSavedCredentials()
 
+        // 3. Sự kiện bấm nút "Lưu tài khoản" thủ công
         btnSave.setOnClickListener {
             saveCredentials()
+            Toast.makeText(this, "Đã lưu tài khoản thành công!", Toast.LENGTH_SHORT).show()
         }
 
+        // 4. Sự kiện bấm nút "Bắt đầu tự động đăng nhập"
         btnLogin.setOnClickListener {
             val station = edtStationCode.text.toString().trim()
             val user = edtUsername.text.toString().trim()
@@ -46,12 +51,25 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Lưu lại trước khi chạy
+            // Lưu lại thông tin trước khi chạy
             saveCredentials()
 
-            Toast.makeText(this, "Đang mở trang đăng nhập 800best...", Toast.LENGTH_SHORT).show()
+            // Kiểm tra xem người dùng đã bật quyền Trợ năng (Accessibility) chưa
+            if (AutoAccessibilityService.instance == null) {
+                Toast.makeText(
+                    this, 
+                    "Vui lòng bật quyền Trợ năng (Accessibility) cho ứng dụng trong Cài đặt trước!", 
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
 
-            // Mở link trực tiếp bằng trình duyệt trên điện thoại
+            // Kích hoạt cờ chạy vòng lặp tự động hóa trong Accessibility Service
+            AutoAccessibilityService.isAutoLoginRunning = true
+
+            Toast.makeText(this, "Đang mở trang đăng nhập & tự động hóa...", Toast.LENGTH_SHORT).show()
+
+            // Mở trực tiếp link đăng nhập 800best bằng trình duyệt
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(LOGIN_URL))
             startActivity(intent)
         }
