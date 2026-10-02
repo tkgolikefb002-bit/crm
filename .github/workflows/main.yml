@@ -18,18 +18,21 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK Environment
+    - name: Install System Gradle & Setup SDK
       run: |
+        # Cài đặt Gradle trực tiếp bằng apt-get để có sẵn công cụ biên dịch ổn định
+        sudo apt-get update
+        sudo apt-get install -y gradle
+
+        # Thiết lập biến môi trường Android SDK và chấp nhận giấy phép
         echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
         mkdir -p /usr/local/lib/android/sdk/licenses
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
-    - name: Build with Detailed Info
+    - name: Build APK with System Gradle
       run: |
-        # Sinh wrapper và chạy build kèm cờ --info để xuất trọn vẹn thông báo lỗi
-        gradle wrapper --gradle-version 7.5 --no-daemon
-        chmod +x gradlew
-        ./gradlew :app:assembleDebug --no-daemon --stacktrace --info
+        # Gọi trực tiếp lệnh gradle của hệ thống không qua wrapper, bật --info để xem log chi tiết từng bước
+        gradle :app:assembleDebug --no-daemon --info
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
