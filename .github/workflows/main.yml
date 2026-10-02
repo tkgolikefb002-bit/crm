@@ -18,33 +18,29 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Auto-create clean Gradle configuration
+    - name: Auto-create stable Gradle configuration
       run: |
-        # 1. Tạo settings.gradle với pluginManagement chuẩn
-        cat << 'EOF' > settings.gradle
-        pluginManagement {
-            repositories {
-                google()
-                mavenCentral()
-                gradlePluginPortal()
-            }
-        }
-        dependencyResolutionManagement {
-            repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
-        rootProject.name = "Auto800Best"
-        include ':app'
-        EOF
+        # 1. settings.gradle cực kỳ đơn giản
+        echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root dùng khối plugins hiện đại
+        # 2. build.gradle cấp root chuẩn buildscript
         cat << 'EOF' > build.gradle
-        plugins {
-            id 'com.android.application' version '8.2.0' apply false
-            id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:8.2.0'
+                classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0'
+            }
+        }
+
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
         }
         EOF
 
@@ -85,7 +81,7 @@ jobs:
         }
         EOF
 
-    - name: Install Gradle & Generate Modern Wrapper
+    - name: Install Gradle & Generate Wrapper
       run: |
         sudo apt-get update && sudo apt-get install -y gradle
         gradle wrapper --gradle-version 8.5
