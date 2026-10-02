@@ -18,18 +18,23 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+    - name: Setup Gradle Environment
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '7.5'
 
-    - name: Setup Gradle Wrapper and Build APK
+    - name: Generate Gradle Wrapper and Build APK
       run: |
-        # Sinh file wrapper phiên bản 7.5 tự động
+        # Chấp nhận tự động các giấy phép Android SDK để tránh bị khựng lệnh
+        mkdir -p $ANDROID_HOME/licenses
+        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
+        echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_HOME/licenses/android-sdk-license
+
+        # Khởi tạo Gradle Wrapper phiên bản 7.5
         gradle wrapper --gradle-version 7.5 --no-daemon
         
-        # Cấp quyền thực thi cho gradlew
+        # Cấp quyền thực thi và chạy build
         chmod +x gradlew
-        
-        # Tiến hành build APK bằng gradlew chuẩn của Android
         ./gradlew assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK artifact
