@@ -18,12 +18,25 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Auto-create missing Gradle root files
+      run: |
+        # Tạo tệp settings.gradle ở thư mục gốc
+        echo 'include ":app"' > settings.gradle
+        
+        # Tạo tệp build.gradle cấp root
+        cat << 'EOF' > build.gradle
+        plugins {
+            id 'com.android.application' version '8.2.0' apply false
+            id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
+        }
+        EOF
+
     - name: Install Gradle & Generate Modern Wrapper
       run: |
         sudo apt-get update && sudo apt-get install -y gradle
         gradle wrapper --gradle-version 8.5
 
-    - name: Grant execute permission for gradlew and Build Debug APK
+    - name: Grant execute permission and Build Debug APK
       run: |
         chmod +x gradlew
         ./gradlew assembleDebug
