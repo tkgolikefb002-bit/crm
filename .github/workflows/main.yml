@@ -29,10 +29,10 @@ jobs:
         mkdir -p /usr/local/lib/android/sdk/licenses
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
-    - name: Build APK with Detailed Info
+    - name: Build Android APK Correctly
       run: |
-        # Thêm cờ --info để log in ra nguyên nhân chi tiết thay vì bị ẩn
-        gradle assembleDebug --no-daemon --info
+        # Gọi lệnh build nhắm đúng module app thay vì root project
+        gradle :app:assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
