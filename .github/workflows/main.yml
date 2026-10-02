@@ -7,10 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Chỉ định rõ thư mục chứa mã nguồn Android của bạn là 'crm'
-    defaults:
-      run:
-        working-directory: ./crm
 
     steps:
     - name: Checkout repository
@@ -22,16 +18,17 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Gradle & Generate Modern Wrapper
+    - name: Install Gradle & Generate Modern Wrapper inside crm
       run: |
+        cd crm
         sudo apt-get update && sudo apt-get install -y gradle
         gradle wrapper --gradle-version 8.5
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-
-    - name: Build Debug APK with Gradle
-      run: ./gradlew assembleDebug
+    - name: Grant execute permission for gradlew and Build Debug APK
+      run: |
+        cd crm
+        chmod +x gradlew
+        ./gradlew assembleDebug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
