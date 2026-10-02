@@ -108,8 +108,8 @@ jobs:
         }
         EOF
 
-        # 6. Build trực tiếp bằng gradle lệnh chuẩn được cung cấp sẵn từ action
-        gradle assembleDebug --stacktrace
+        # 6. Chạy build với cờ debug/stacktrace rõ ràng để bóc tách triệt để lỗi
+        gradle assembleDebug --info --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
