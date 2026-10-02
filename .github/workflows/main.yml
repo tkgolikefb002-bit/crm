@@ -18,24 +18,21 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle Environment
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '7.5'
-
-    - name: Generate Gradle Wrapper and Build APK
+    - name: Setup Android SDK Path
       run: |
-        # Chấp nhận tự động các giấy phép Android SDK để tránh bị khựng lệnh
-        mkdir -p $ANDROID_HOME/licenses
-        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
-        echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_HOME/licenses/android-sdk-license
+        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+        mkdir -p $HOME/android-sdk/licenses
+        echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
 
-        # Khởi tạo Gradle Wrapper phiên bản 7.5
-        gradle wrapper --gradle-version 7.5 --no-daemon
-        
-        # Cấp quyền thực thi và chạy build
-        chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon --stacktrace
+    - name: Build APK with Gradle Wrapper
+      run: |
+        # Kiểm tra và cấp quyền chạy cho gradlew nếu có sẵn, nếu chưa có sẽ dùng gradle trực tiếp kèm SDK path
+        if [ -f "./gradlew" ]; then
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+        else
+          gradle assembleDebug -Dandroid.sdk.path=$HOME/android-sdk --no-daemon --stacktrace
+        fi
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
