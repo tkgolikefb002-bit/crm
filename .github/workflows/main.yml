@@ -18,15 +18,13 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Gradle & Generate Modern Wrapper inside crm
+    - name: Install Gradle & Generate Modern Wrapper
       run: |
-        cd crm
         sudo apt-get update && sudo apt-get install -y gradle
         gradle wrapper --gradle-version 8.5
 
     - name: Grant execute permission for gradlew and Build Debug APK
       run: |
-        cd crm
         chmod +x gradlew
         ./gradlew assembleDebug
 
@@ -34,4 +32,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
-        path: crm/app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
