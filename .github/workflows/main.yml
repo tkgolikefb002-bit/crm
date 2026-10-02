@@ -18,12 +18,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Gradle Wrapper
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '7.5'
-
-    - name: Generate Android Project Structure
+    - name: Generate Android Project Structure & Build APK
       run: |
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
@@ -108,8 +103,9 @@ jobs:
         }
         EOF
 
-    - name: Build Debug APK with Gradle Wrapper
-      run: ./gradlew assembleDebug --stacktrace
+        # 6. Build trực tiếp bằng lệnh gradle hệ thống phiên bản 7.5
+        gradle wrapper --gradle-version 7.5
+        ./gradlew assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
