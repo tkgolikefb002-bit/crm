@@ -18,6 +18,11 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Setup Gradle Wrapper
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '7.5'
+
     - name: Generate Android Project Structure
       run: |
         # 1. Tạo settings.gradle
@@ -102,22 +107,6 @@ jobs:
             }
         }
         EOF
-
-        # 6. Tạo đúng cấu trúc Gradle Wrapper phiên bản 7.5 tương thích hoàn toàn
-        mkdir -p gradle/wrapper
-        cat << 'EOF' > gradle/wrapper/gradle-wrapper.properties
-        distributionBase=GRADLE_USER_HOME
-        distributionPath=wrapper/dists
-        distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
-        zipStoreBase=GRADLE_USER_HOME
-        zipStorePath=wrapper/dists
-        EOF
-
-        # Tạo file gradlew thực thi
-        gradle wrapper --gradle-version 7.5
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
 
     - name: Build Debug APK with Gradle Wrapper
       run: ./gradlew assembleDebug --stacktrace
