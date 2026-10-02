@@ -22,6 +22,7 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '7.5'
+        cache-read-only: true
 
     - name: Setup Android SDK Environment
       run: |
@@ -29,10 +30,10 @@ jobs:
         mkdir -p /usr/local/lib/android/sdk/licenses
         echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
 
-    - name: Build Android APK with Full Trace
+    - name: Build Android APK Stable
       run: |
-        # Kết hợp --stacktrace và --info để bắt buộc log in ra lỗi chi tiết nhất
-        gradle :app:assembleDebug --no-daemon --stacktrace --info
+        # Chạy build với giới hạn RAM tối ưu (-Xmx1024m) và không dùng daemon để tránh sập tiến trình
+        gradle :app:assembleDebug -Dorg.gradle.jvmargs="-Xmx1024m -Dfile.encoding=UTF-8" --no-daemon --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
