@@ -28,7 +28,14 @@ jobs:
         # 1. Tạo settings.gradle
         echo 'include ":app"' > settings.gradle
         
-        # 2. Tạo build.gradle cấp root
+        # 2. Tạo gradle.properties để bật cấu hình AndroidX và Jetifier
+        cat << 'EOF' > gradle.properties
+        android.useAndroidX=true
+        android.enableJetifier=true
+        org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+        EOF
+
+        # 3. Tạo build.gradle cấp root
         cat << 'EOF' > build.gradle
         buildscript {
             repositories {
@@ -48,7 +55,7 @@ jobs:
         }
         EOF
 
-        # 3. Tạo thư mục app và cấu hình build.gradle bên trong
+        # 4. Tạo thư mục app và cấu hình build.gradle bên trong
         mkdir -p app/src/main/java/com/example/auto800best
         mkdir -p app/src/main/res
         
@@ -81,7 +88,7 @@ jobs:
         }
         EOF
 
-        # 4. Tạo AndroidManifest.xml
+        # 5. Tạo AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.auto800best">
@@ -96,7 +103,7 @@ jobs:
         </manifest>
         EOF
 
-        # 5. Tạo MainActivity.kt tối thiểu
+        # 6. Tạo MainActivity.kt tối thiểu
         cat << 'EOF' > app/src/main/java/com/example/auto800best/MainActivity.kt
         package com.example.auto800best
         import android.os.Bundle
@@ -108,8 +115,8 @@ jobs:
         }
         EOF
 
-        # 6. Chạy build với cờ debug chi tiết nhất
-        gradle assembleDebug --info --stacktrace --warning-mode all
+        # 7. Chạy build APK
+        gradle assembleDebug --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
