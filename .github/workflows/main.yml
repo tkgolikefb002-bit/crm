@@ -23,16 +23,8 @@ jobs:
       with:
         gradle-version: '7.5'
 
-    - name: Generate Gradle Wrapper and Build APK
-      run: |
-        # Khởi tạo Gradle Wrapper phiên bản 7.5 không dùng daemon
-        gradle wrapper --gradle-version 7.5 --no-daemon
-        
-        # Cấp quyền thực thi cho gradlew
-        chmod +x gradlew
-        
-        # Chạy build APK ở chế độ không dùng daemon để tránh lỗi tiến trình
-        ./gradlew assembleDebug --no-daemon --stacktrace
+    - name: Build APK Direct
+      run: gradle assembleDebug --no-daemon --stacktrace
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
